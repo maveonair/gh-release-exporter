@@ -1,6 +1,6 @@
 # gh-release-exporter
 
-This program checks on GitHub if a newer version of a configured program exists (see `config.example.toml`) and exposes the result as a Prometheus Metrics `spc_success_probe`.
+This program checks on GitHub if a newer version of a configured program exists (see `config.example.toml`) and exposes the result as a Prometheus Metrics `gh_release_probe_success`.
 
 ## Endpoint
 
