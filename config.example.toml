@@ -1,0 +1,10 @@
+listening_addr = "0.0.0.0:9054"
+
+[releases]
+[releases.redis]
+last_known_version = "7.0.4"
+github_repo = "redis/redis"
+
+[releases.strongswan]
+last_known_version = "5.9.1"
+github_repo = "strongswan/strongswan"

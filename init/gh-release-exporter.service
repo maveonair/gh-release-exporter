@@ -1,0 +1,13 @@
+[Unit]
+Description=gh-release-exporter service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/gh-release-exporter -config /etc/gh-release-exporter/config.toml
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
