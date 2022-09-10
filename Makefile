@@ -11,7 +11,7 @@ clean:
 	rm -rf ./dist/*
 
 dev:
-	gow run cmd/gh-release-exporter/main.go
+	gow run cmd/gh-release-exporter/main.go -config config.example.toml
 
 test:
 	go test -v ./...
