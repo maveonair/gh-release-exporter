@@ -96,14 +96,14 @@ func checkReleasesForUpdate(releases map[string]release.Release) {
 		}
 
 		if newVersion == "" {
-			metrics.SetReleaseSuccessProbe(key, 0)
+			metrics.SetReleaseSuccessProbe(key, 1)
 
 			log.WithFields(log.Fields{
 				"name":               key,
 				"last_known_version": release.LastKnownVersion,
 			}).Info("No new release available")
 		} else {
-			metrics.SetReleaseSuccessProbe(key, 1)
+			metrics.SetReleaseSuccessProbe(key, 0)
 
 			log.WithFields(log.Fields{
 				"name":               key,
