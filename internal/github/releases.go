@@ -9,24 +9,24 @@ import (
 	"time"
 )
 
-type tag struct {
-	Name string `json:"name"`
+type release struct {
+	Name string `json:"tag_name"`
 }
 
-// GetLatestTags returns the latest tags for the given repo.
-func GetLatestTags(repo string) ([]string, error) {
+// GetLatestReleases returns the latest releases for the given repo.
+func GetLatestReleases(repo string) ([]string, error) {
 	client := &http.Client{
 		Timeout: 15 * time.Second,
 	}
 
-	resp, err := client.Get(fmt.Sprintf("https://api.github.com/repos/%s/tags", repo))
+	resp, err := client.Get(fmt.Sprintf("https://api.github.com/repos/%s/releases", repo))
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("Request error: %s", resp.Status)
+		return nil, fmt.Errorf("request error: %s", resp.Status)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -34,14 +34,14 @@ func GetLatestTags(repo string) ([]string, error) {
 		return nil, err
 	}
 
-	var tags []tag
+	var tags []release
 	err = json.Unmarshal(body, &tags)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(tags) == 0 {
-		return nil, errors.New("No tags found on GitHub")
+		return nil, errors.New("no releases found on GitHub")
 	}
 
 	versions := make([]string, 0)

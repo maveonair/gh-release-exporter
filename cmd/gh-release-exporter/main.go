@@ -65,7 +65,7 @@ func checkReleasesForUpdate(releases map[string]release.Release) {
 			continue
 		}
 
-		tags, err := github.GetLatestTags(release.GitHubRepo)
+		latestReleases, err := github.GetLatestReleases(release.GitHubRepo)
 		if err != nil {
 			metrics.IncreaseErrors()
 
@@ -78,27 +78,38 @@ func checkReleasesForUpdate(releases map[string]release.Release) {
 		}
 
 		newVersion := ""
-		for _, version := range tags {
-			v, err := semver.NewVersion(version)
+		for _, latestRelease := range latestReleases {
+			parsedTag, err := semver.NewVersion(latestRelease)
 			if err != nil {
 				log.WithFields(log.Fields{
 					"name":               key,
 					"last_known_version": release.LastKnownVersion,
-					"version":            version,
-				}).Debug(err)
+					"latest_release":     latestRelease,
+				}).Error(err)
 
 				continue
 			}
 
-			if c.Check(v) {
-				newVersion = version
+			if c.Check(parsedTag) {
+				newVersion = latestRelease
 			}
 		}
 
-		if newVersion != "" {
-			metrics.SetReleaseSuccessProbe(key, newVersion, 0)
+		if newVersion == "" {
+			metrics.SetReleaseSuccessProbe(key, 0)
+
+			log.WithFields(log.Fields{
+				"name":               key,
+				"last_known_version": release.LastKnownVersion,
+			}).Info("No new release available")
 		} else {
-			metrics.SetReleaseSuccessProbe(key, release.LastKnownVersion, 1)
+			metrics.SetReleaseSuccessProbe(key, 1)
+
+			log.WithFields(log.Fields{
+				"name":               key,
+				"last_known_version": release.LastKnownVersion,
+				"new_version":        newVersion,
+			}).Info("New release available")
 		}
 	}
 }

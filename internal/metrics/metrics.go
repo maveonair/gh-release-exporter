@@ -18,7 +18,7 @@ var (
 	releaseProbe = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "gh_release_probe_success",
 		Help: "Displays whether or not the probe was a success.",
-	}, []string{"name", "version"})
+	}, []string{"name"})
 )
 
 func init() {
@@ -38,6 +38,6 @@ func IncreaseErrors() {
 }
 
 // SetReleaseSuccessProbe sets the probe status for a release
-func SetReleaseSuccessProbe(name string, version string, value float64) {
-	releaseProbe.WithLabelValues(name, version).Set(value)
+func SetReleaseSuccessProbe(name string, value float64) {
+	releaseProbe.WithLabelValues(name).Set(value)
 }
