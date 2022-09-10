@@ -37,7 +37,7 @@ func IncreaseErrors() {
 	errors.Inc()
 }
 
-// SetReleaseSuccessProbe sets the probe status for a release
+// SetReleaseSuccessProbe sets the probe status for a releases
 func SetReleaseSuccessProbe(name string, value float64) {
 	releaseProbe.WithLabelValues(name).Set(value)
 }

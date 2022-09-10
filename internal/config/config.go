@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/maveonair/gh-release-exporter/internal/release"
+	"github.com/maveonair/gh-release-exporter/internal/releases"
 )
 
 const (
@@ -13,8 +13,8 @@ const (
 
 type Config struct {
 	Interval      time.Duration
-	ListeningAddr string                     `toml:"listening_addr"`
-	Releases      map[string]release.Release `toml:"releases"`
+	ListeningAddr string                      `toml:"listening_addr"`
+	Releases      map[string]releases.Release `toml:"releases"`
 }
 
 func NewConfig(configFilePath string) (*Config, error) {

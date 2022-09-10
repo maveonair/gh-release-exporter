@@ -9,7 +9,7 @@ import (
 	"github.com/maveonair/gh-release-exporter/internal/config"
 	"github.com/maveonair/gh-release-exporter/internal/github"
 	"github.com/maveonair/gh-release-exporter/internal/metrics"
-	"github.com/maveonair/gh-release-exporter/internal/release"
+	"github.com/maveonair/gh-release-exporter/internal/releases"
 
 	"github.com/Masterminds/semver"
 	log "github.com/sirupsen/logrus"
@@ -31,27 +31,29 @@ func main() {
 		log.Fatal("argument -config is not set")
 	}
 
-	config, err := config.NewConfig(*configFilePathPtr)
+	configuration, err := config.NewConfig(*configFilePathPtr)
 	if err != nil {
 		log.WithError(err).Fatal()
 	}
 
-	go metrics.Setup(config.ListeningAddr)
+	go metrics.Setup(configuration.ListeningAddr)
+
+	githubClient := github.NewClient()
 
 	for {
-		checkReleasesForUpdate(config.Releases)
+		checkReleasesForUpdate(githubClient, configuration.Releases)
 
-		log.WithField("interval", config.Interval).Info("Sleep until next update")
-		time.Sleep(config.Interval)
+		log.WithField("interval", configuration.Interval).Info("Sleep until next update")
+		time.Sleep(configuration.Interval)
 	}
 }
 
-func checkReleasesForUpdate(releases map[string]release.Release) {
+func checkReleasesForUpdate(githubClient github.Client, releases map[string]releases.Release) {
 	for key, release := range releases {
 		log.WithFields(log.Fields{
 			"name":               key,
 			"last_known_version": release.LastKnownVersion,
-		}).Info("Check latest release")
+		}).Info("Check latest releases")
 
 		c, err := semver.NewConstraint(fmt.Sprintf("> %s", release.LastKnownVersion))
 		if err != nil {
@@ -65,7 +67,7 @@ func checkReleasesForUpdate(releases map[string]release.Release) {
 			continue
 		}
 
-		latestReleases, err := github.GetLatestReleases(release.GitHubRepo)
+		latestReleases, err := githubClient.GetLatestReleases(release.GitHubRepo)
 		if err != nil {
 			metrics.IncreaseErrors()
 
@@ -101,7 +103,7 @@ func checkReleasesForUpdate(releases map[string]release.Release) {
 			log.WithFields(log.Fields{
 				"name":               key,
 				"last_known_version": release.LastKnownVersion,
-			}).Info("No new release available")
+			}).Info("No new releases available")
 		} else {
 			metrics.SetReleaseSuccessProbe(key, 0)
 
@@ -109,7 +111,7 @@ func checkReleasesForUpdate(releases map[string]release.Release) {
 				"name":               key,
 				"last_known_version": release.LastKnownVersion,
 				"new_version":        newVersion,
-			}).Info("New release available")
+			}).Info("New releases available")
 		}
 	}
 }
